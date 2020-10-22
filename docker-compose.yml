@@ -1,0 +1,40 @@
+version: "3.7"
+
+volumes:
+  pihole:
+  dnsmasq:
+
+services:
+  pihole:
+    image: pihole/pihole
+    volumes:
+      - 'pihole:/etc/pihole'
+      - 'dnsmasq:/etc/dnsmasq.d'
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "67:67/udp"
+      - "8001:80/tcp"
+      - "8002:443/tcp"
+    environment:
+      - 'TZ=Europe/Helsinki'
+      - 'WEBPASSWORD=secretpassword'
+      - 'DNS1=192.168.10.3#5053'
+      - 'DNS2=192.168.10.3#5053'
+    restart: always
+    networks:
+      upnet:
+        ipv4_address: 192.168.10.2
+
+  unbound:
+    image: klutchell/unbound
+    restart: always
+    networks:
+      upnet:
+        ipv4_address: 192.168.10.3
+
+networks:
+  upnet:
+    ipam:
+      config:
+        - subnet: 192.168.10.0/24
